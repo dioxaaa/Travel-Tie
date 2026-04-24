@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Explore 35 handpicked travel destinations across 7 world regions with budget estimates, highlights, and insider tips.">
+<title>Explore Destinations — TravelTie</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/main.css"><link rel="stylesheet" href="../css/destinations.css"></head><body>
+
+  <header>
+  <a href="../index.html" class="logo" aria-label="TravelTie Home">
+    <div class="logo-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+    <div class="logo-text"><span class="t1">Travel</span><span class="t2">Tie</span></div>
+  </a>
+
+  <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+    <a href="../index.html">Home</a>
+    <a href="destinations.html" class="active">Destinations</a>
+    <a href="calculator.html">Calculator</a>
+  </nav>
+
+  <button class="menu-toggle" id="menuToggle"
+          aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+    <span class="bars-wrap" aria-hidden="true">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+    <i class="fas fa-bars icon-bars" aria-hidden="true" style="display:none"></i>
+    <i class="fas fa-times icon-times" aria-hidden="true" style="display:none"></i>
+  </button>
+
+  <div class="auth-section">
+    <a href="login.html" class="btn-signin" id="signInBtn"
+       aria-label="Sign in to your account">
+      <i class="fas fa-user" aria-hidden="true"></i>
+      <span class="btn-signin-label" aria-hidden="true">Sign In</span>
+    </a>
+    <div class="user-dropdown" id="userDropdown" aria-label="User menu" style="display:none;">
+      <button class="user-profile-btn" id="userProfileBtn"
+              aria-haspopup="true" aria-expanded="false" aria-controls="userDropdownMenu">
+        <div class="user-avatar" id="userAvatarBtn" aria-hidden="true">U</div>
+        <span class="u-name" id="userNameBtn">User</span>
+        <i class="fas fa-chevron-down u-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="user-dropdown-menu" id="userDropdownMenu" role="menu" aria-hidden="true">
+        <div class="dd-header">
+          <div class="dd-avatar-row">
+            <div class="dd-avatar-lg" id="ddAvatarText" aria-hidden="true">U</div>
+            <div class="dd-user-info">
+              <div class="dd-name" id="ddName">User</div>
+              <div class="dd-email" id="ddEmail"></div>
+            </div>
+          </div>
+        </div>
+        <a href="profile.html" class="dropdown-item" role="menuitem">
+          <div class="di-icon"><i class="fas fa-user" aria-hidden="true"></i></div>My Profile
+        </a>
+        <button id="savedPlacesBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-heart" aria-hidden="true"></i></div>Saved Places
+        </button>
+        <button id="savedCalcsBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-bookmark" aria-hidden="true"></i></div>Saved Budgets
+        </button>
+        <div class="dd-divider" role="separator"></div>
+        <button class="dropdown-item sign-out" id="signOutBtn" role="menuitem">
+          <div class="di-icon"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></div>Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ PARALLAX HERO ══ -->
+<section class="dest-hero">
+  <div class="dest-hero-parallax" id="destParallaxBg"></div>
+  <div class="dest-hero-grid"></div>
+  <div class="dest-hero-orb o1"></div>
+  <div class="dest-hero-orb o2"></div>
+  <div class="dest-hero-inner">
+    <div class="dest-hero-eyebrow"><i class="fas fa-compass"></i> Handpicked destinations</div>
+    <h1>Explore Amazing<br><em>Destinations</em></h1>
+    <p>Handpicked destinations across 7 world regions — with real scenery, insider guides, budget estimates, and local tips.</p>
+  </div>
+</section>
+
+<!-- ══ SEARCH & FILTERS ══ -->
+<div class="search-filter-bar">
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" id="searchInput" placeholder="Search destinations, countries, tags…" autocomplete="off">
+  </div>
+  <select class="filter-select" id="budgetFilter" aria-label="Filter by budget">
+    <option value="">All Budgets</option>
+    <option value="budget">Budget-Friendly</option>
+    <option value="moderate">Moderate</option>
+    <option value="luxury">Luxury</option>
+  </select>
+  <button class="btn-apply" id="applyFilters"><i class="fas fa-filter"></i> Filter</button>
+  <button class="btn-reset"  id="resetFilters"><i class="fas fa-redo-alt"></i> Reset</button>
+</div>
+
+<!-- ══ DESTINATIONS ══ -->
+<section class="destinations-section">
+  <div class="section-header">
+    <h2>All Destinations</h2>
+    <span class="dest-count" id="destCount">Loading…</span>
+  </div>
+
+  <!-- Continent tabs -->
+  <div class="continent-tabs">
+    <button class="continent-tab active" data-continent="all"><i class="fas fa-globe"></i> All</button>
+    <button class="continent-tab" data-continent="Asia"><i class="fas fa-map-pin"></i> Asia</button>
+    <button class="continent-tab" data-continent="Europe"><i class="fas fa-landmark"></i> Europe</button>
+    <button class="continent-tab" data-continent="North America"><i class="fas fa-mountain-sun"></i> N. America</button>
+    <button class="continent-tab" data-continent="South America"><i class="fas fa-leaf"></i> S. America</button>
+    <button class="continent-tab" data-continent="Africa"><i class="fas fa-paw"></i> Africa</button>
+    <button class="continent-tab" data-continent="Oceania"><i class="fas fa-water"></i> Oceania</button>
+    <button class="continent-tab" data-continent="Middle East"><i class="fas fa-mosque"></i> Middle East</button>
+  </div>
+
+  <div class="destinations-grid" id="destinationsGrid"></div>
+
+  <div class="no-results hidden" id="noResults">
+    <i class="fas fa-search"></i>
+    <h3>No destinations found</h3>
+    <p>Try adjusting your search or filters to find what you're looking for.</p>
+  </div>
+
+  <div class="pagination" id="pagination">
+    <button class="page-btn prev-btn"><i class="fas fa-chevron-left"></i> Previous</button>
+    <span id="pageIndicator">Page 1</span>
+    <button class="page-btn next-btn">Next <i class="fas fa-chevron-right"></i></button>
+  </div>
+</section>
+
+<!-- ══ IMPROVED MODAL ══ -->
+<div class="destination-modal" id="destinationModal">
+  <div class="modal-content">
+    <button class="close-modal" id="closeModalBtn" aria-label="Close modal"><i class="fas fa-times" aria-hidden="true"></i></button>
+
+    <!-- Full-bleed hero image -->
+    <div class="modal-hero" id="modalHero">
+      <div class="modal-hero-overlay"></div>
+      <div class="modal-hero-badges">
+        <span class="modal-rating-pill"><i class="fas fa-star"></i> <span id="modalRating">4.8</span></span>
+        <span class="modal-budget-pill" id="modalBudgetPill">Moderate</span>
+      </div>
+      <div class="modal-hero-info">
+        <div class="modal-tags-row" id="modalTagsRow"></div>
+        <h2 id="modalDestName">Destination</h2>
+        <p class="modal-location"><i class="fas fa-map-marker-alt"></i> <span id="modalRegion">Region</span></p>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Description -->
+      <p class="modal-desc" id="modalDesc"></p>
+
+      <!-- Review Section -->
+      <div class="modal-review-section" id="modalReviewSection">
+        <div class="review-section-title">
+          <i class="fas fa-star-half-alt"></i> Reviews & Ratings
+        </div>
+        
+        <!-- Average Rating Display -->
+        <div class="review-avg">
+          <div class="review-avg-score" id="avgRatingScore">4.8</div>
+          <div class="review-avg-meta">
+            <div class="review-avg-stars" id="avgStars">
+              <span class="review-star">★</span><span class="review-star">★</span><span class="review-star">★</span><span class="review-star">★</span><span class="review-star">★</span>
+            </div>
+            <div class="review-count"><span id="reviewCount">0</span> reviews</div>
+          </div>
+        </div>
+
+        <!-- Review Form for Authenticated Users -->
+        <div class="review-form" id="reviewForm">
+          <label style="font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 6px;">Your Rating</label>
+          <div class="review-rating-input" id="ratingInput"></div>
+          <textarea class="review-textarea" id="reviewComment" placeholder="Share your experience... (optional)" maxlength="500"></textarea>
+          <button class="review-submit-btn" id="submitReviewBtn">✓ Submit Review</button>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list" id="reviewsList"></div>
+      </div>
+
+      <!-- Cost cards -->
+      <div class="modal-costs-section">
+        <div class="modal-costs-title"><i class="fas fa-wallet"></i> Estimated Costs</div>
+        <div class="modal-costs" id="modalCosts"></div>
+      </div>
+
+      <!-- Two-column: Highlights + Tips -->
+      <div class="modal-two-col">
+        <div class="modal-col">
+          <h3 class="modal-sec-title"><i class="fas fa-map-marked-alt"></i> Highlights</h3>
+          <ul class="tips-list" id="highlightsList"></ul>
+        </div>
+        <div class="modal-col">
+          <h3 class="modal-sec-title"><i class="fas fa-lightbulb"></i> Travel Tips</h3>
+          <ul class="tips-list tips-list-tips" id="tipsList"></ul>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-fav" id="modalFavBtn"><i class="far fa-heart"></i> Save Destination</button>
+        <button class="modal-btn modal-btn-plan" onclick="goToCalculator()"><i class="fas fa-calculator"></i> Plan My Budget</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo"><div class="footer-logo-icon"><i class="fas fa-paper-plane"></i></div><span class="footer-logo-text">TravelTie</span></div>
+      <p>Your trusted companion for planning unforgettable travel experiences around the world.</p>
+      <div class="footer-socials" aria-label="Social media links">
+        <a class="footer-social" href="#" title="Instagram" aria-label="Follow us on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="Twitter" aria-label="Follow us on Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="Facebook" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="YouTube" aria-label="Follow us on YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Navigate</h4><a href="index.html">Home</a><a href="destinations.html">Destinations</a><a href="calculator.html">Budget Calculator</a></div>
+    <div class="footer-col">
+      <h4>Regions</h4>
+      <a href="destinations.html?continent=Asia">Asia</a>
+      <a href="destinations.html?continent=Europe">Europe</a>
+      <a href="destinations.html?continent=Africa">Africa</a>
+      <a href="destinations.html?continent=Oceania">Oceania</a>
+      <a href="destinations.html?continent=Middle East">Middle East</a>
+    </div>
+    <div class="footer-col">
+      <h4>Stay Updated</h4>
+      <p class="text-white-40 font-sm-85">Get travel deals in your inbox.</p>
+      <div class="f-nl">
+        <input type="email" id="nlEmail" placeholder="Your email">
+        <button id="nlBtn" aria-label="Subscribe to newsletter"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 TravelTie. All rights reserved.</span>
+    <div><a href="#">Privacy</a><a href="#">Terms</a></div>
+  </div>
+</footer>
+
+<!-- SAVED PLACES MODAL -->
+<div id="savedPlacesModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="savedPlacesTitle" aria-modal="true" aria-hidden="true">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="savedPlacesTitle"><i class="fas fa-heart"></i> Saved Places</h3>
+      <button id="savedPlacesModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedPlacesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVED CALCULATIONS MODAL -->
+<div id="savedCalcsModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="savedCalcsTitle" aria-modal="true" aria-hidden="true">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="savedCalcsTitle"><i class="fas fa-calculator"></i> Saved Budgets</h3>
+      <button id="savedCalcsModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedCalcsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+  <div class="modal-container" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 id="loginModalTitle"><i class="fas fa-paper-plane"></i> Welcome to TravelTie</h3>
+      <button id="loginModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:24px;">
+      <div class="auth-tabs" style="display:flex;gap:8px;margin-bottom:20px;">
+        <button class="auth-tab active" data-tab="signin" style="flex:1;padding:12px;border:2px solid var(--navy);background:white;color:var(--navy);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <button class="auth-tab" data-tab="signup" style="flex:1;padding:12px;border:1px solid var(--gray-200);background:white;color:var(--gray-600);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </div>
+      <form id="quickSignInForm" class="auth-form" novalidate>
+        <input type="email" id="quickEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickPassword" class="auth-input" placeholder="Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickPasswordErr"></div>
+        <button type="submit" class="auth-btn">Sign In</button>
+      </form>
+      <form id="quickSignUpForm" class="auth-form" novalidate style="display:none;">
+        <input type="text" id="quickName" class="auth-input" placeholder="Full Name" required>
+        <div class="auth-error" id="quickNameErr"></div>
+        <input type="email" id="quickSuEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickSuEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuPassword" class="auth-input" placeholder="Password (6+ characters)" required minlength="6">
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuPasswordErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuConfirmPassword" class="auth-input" placeholder="Confirm Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuConfirmPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuConfirmPasswordErr"></div>
+        <button type="submit" class="auth-btn">Create Account</button>
+      </form>
+      <div class="auth-divider"><span>or</span></div>
+      <button type="button" id="quickGoogleBtn" class="auth-google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.auth-tabs .auth-tab.active { background: white; color: var(--navy); border: 2px solid var(--navy); }
+.auth-tabs .auth-tab:not(.active) { background: white; color: var(--gray-600); border: 2px solid var(--gray-200); }
+.auth-tabs { flex-wrap: wrap; }
+@media (max-width: 400px) {
+  .auth-tabs { gap: 6px; }
+  .auth-tab { padding: 10px 8px; font-size: 0.9rem; }
+  .auth-tabs .auth-tab { flex: 1 1 calc(50% - 6px); }
+}
+@media (max-width:480px) {
+  .auth-tabs { flex-direction:column !important; gap:8px !important; }
+  .auth-tab { width:100%; }
+}
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-input { width: 100%; padding: 14px 16px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+.auth-input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(10,22,40,0.1); }
+.auth-input.error { border-color: #dc2626; }
+.auth-input::placeholder { color: var(--gray-400); }
+.auth-error { font-size: 0.75rem; color: #dc2626; min-height: 16px; }
+.auth-pw-wrap { position: relative; }
+.auth-toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 4px; }
+.auth-toggle-pw:hover { color: var(--navy); }
+.auth-btn { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
+.auth-btn:hover { opacity: 0.9; }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-divider { display: flex; align-items: center; gap: 16px; margin: 8px 0; color: var(--gray-400); font-size: 0.85rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+.auth-google-btn { width: 100%; padding: 14px; background: white; border: 1px solid var(--gray-200); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; transition: background 0.2s; }
+.auth-google-btn:hover { background: var(--gray-50); }
+.auth-google-btn i { font-size: 1.1rem; }
+</style>
+
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/destinations.js"></script>
+<script type="module" src="../js/modals.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const heroCount = document.getElementById('heroDestCount');
+    if (heroCount) {
+      heroCount.textContent = '35+';
+      const observer = new MutationObserver(() => {
+        const val = parseInt(heroCount.textContent);
+        if (!isNaN(val) && val > 35) heroCount.textContent = '35+';
+      });
+      observer.observe(heroCount, { childList: true, characterData: true, subtree: true });
+    }
+  });
+  const destPbg = document.getElementById('destParallaxBg');
+  let _tick = false;
+  window.addEventListener('scroll', () => {
+    if (!_tick) {
+      requestAnimationFrame(() => {
+        if (destPbg) destPbg.style.transform = `translateY(${window.scrollY * 0.35}px)`;
+        _tick = false;
+      });
+      _tick = true;
+    }
+  }, { passive: true });
+</script>
+
+<script>
+  // Header scroll effect — initNav() in firebase.js handles the menu toggle
+  window.addEventListener('scroll', () => {
+    document.querySelector('header')?.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+</script>
+<script>
+  // Login modal close handlers
+  document.getElementById('loginModalClose')?.addEventListener('click', () => {
+    document.getElementById('loginModalOverlay')?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('loginModalOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Toggle password visibility
+  window.togglePw = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input || !btn) return;
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    btn.innerHTML = isPw ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  };
+  
+  // Auth tab switching
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const isSignUp = this.dataset.tab === 'signup';
+      document.querySelectorAll('.auth-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.background = '';
+        t.style.color = '';
+      });
+      this.classList.add('active');
+      this.style.background = 'white';
+      this.style.border = '2px solid var(--navy)';
+      this.style.color = 'var(--navy)';
+      document.getElementById('quickSignInForm').style.display = isSignUp ? 'none' : 'block';
+      document.getElementById('quickSignUpForm').style.display = isSignUp ? 'block' : 'none';
+    });
+  });
+  
+  const clearAuthErr = (ids) => { ids.forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = ''; el.previousElementSibling?.classList.remove('error'); } }); };
+  const setAuthErr = (id, msg) => { const el = document.getElementById(id); if (el) { el.textContent = msg; const inp = el.previousElementSibling; if (inp) inp.classList.add('error'); } };
+  
+  // Quick Sign In
+  document.getElementById('quickSignInForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickEmailErr', 'quickPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const email = document.getElementById('quickEmail')?.value.trim();
+    const pw = document.getElementById('quickPassword')?.value;
+    if (!email) { setAuthErr('quickEmailErr', 'Email is required'); return; }
+    if (!pw) { setAuthErr('quickPasswordErr', 'Password is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickEmailErr', 'Invalid email format'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signIn(email, pw);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome back!', 'success');
+      } else {
+        btn.textContent = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Invalid email or password', 'error');
+      }
+    } catch(err) {
+      btn.textContent = orig;
+      btn.disabled = false;
+      showToast('Sign in failed', 'error');
+    }
+  });
+  
+  // Quick Sign Up
+  document.getElementById('quickSignUpForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickNameErr', 'quickSuEmailErr', 'quickSuPasswordErr', 'quickSuConfirmPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const name = document.getElementById('quickName')?.value.trim();
+    const email = document.getElementById('quickSuEmail')?.value.trim();
+    const pw = document.getElementById('quickSuPassword')?.value;
+    const cpw = document.getElementById('quickSuConfirmPassword')?.value;
+    if (!name) { setAuthErr('quickNameErr', 'Name is required'); return; }
+    if (!email) { setAuthErr('quickSuEmailErr', 'Email is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickSuEmailErr', 'Invalid email format'); return; }
+    if (!pw || pw.length < 6) { setAuthErr('quickSuPasswordErr', 'Password must be 6+ characters'); return; }
+    if (pw !== cpw) { setAuthErr('quickSuConfirmPasswordErr', 'Passwords do not match'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signUp(email, pw, name);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Account created! <i class="fas fa-check"></i>', 'success');
+      } else {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Sign up failed', 'error');
+      }
+    } catch(err) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      showToast('Sign up failed', 'error');
+    }
+  });
+  
+  // Google Sign In
+  document.getElementById('quickGoogleBtn')?.addEventListener('click', async () => {
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const btn = document.getElementById('quickGoogleBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch spin-anim"></i> Connecting...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.googleSignIn();
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome! <i class="fas fa-check"></i>', 'success');
+      } else {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Google sign in failed', 'error');
+      }
+    } catch(err) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      showToast('Google sign in failed', 'error');
+    }
+  });
+</script>
+</body>
+</html>

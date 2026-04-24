@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Plan your trip budget with TravelTie's smart calculator. Full cost breakdowns and live currency conversion for 48 currencies.">
+<title>Budget Calculator — TravelTie</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/calculator.css">
+<link rel="stylesheet" href="../css/destinations.css">
+</head><body>
+
+<header>
+  <a href="../index.html" class="logo" aria-label="TravelTie Home">
+    <div class="logo-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+    <div class="logo-text"><span class="t1">Travel</span><span class="t2">Tie</span></div>
+  </a>
+
+  <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+    <a href="../index.html">Home</a>
+    <a href="destinations.html">Destinations</a>
+    <a href="calculator.html" class="active">Calculator</a>
+  </nav>
+
+  <button class="menu-toggle" id="menuToggle"
+          aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+    <span class="bars-wrap" aria-hidden="true">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+    <i class="fas fa-bars icon-bars" aria-hidden="true" style="display:none"></i>
+    <i class="fas fa-times icon-times" aria-hidden="true" style="display:none"></i>
+  </button>
+
+  <div class="auth-section">
+    <a href="login.html" class="btn-signin" id="signInBtn"
+       aria-label="Sign in to your account">
+      <i class="fas fa-user" aria-hidden="true"></i>
+      <span class="btn-signin-label" aria-hidden="true">Sign In</span>
+    </a>
+    <div class="user-dropdown" id="userDropdown" aria-label="User menu" style="display:none;">
+      <button class="user-profile-btn" id="userProfileBtn"
+              aria-haspopup="true" aria-expanded="false" aria-controls="userDropdownMenu">
+        <div class="user-avatar" id="userAvatarBtn" aria-hidden="true">U</div>
+        <span class="u-name" id="userNameBtn">User</span>
+        <i class="fas fa-chevron-down u-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="user-dropdown-menu" id="userDropdownMenu" role="menu" aria-hidden="true">
+        <div class="dd-header">
+          <div class="dd-avatar-row">
+            <div class="dd-avatar-lg" id="ddAvatarText" aria-hidden="true">U</div>
+            <div class="dd-user-info">
+              <div class="dd-name" id="ddName">User</div>
+              <div class="dd-email" id="ddEmail"></div>
+            </div>
+          </div>
+        </div>
+        <a href="profile.html" class="dropdown-item" role="menuitem">
+          <div class="di-icon"><i class="fas fa-user" aria-hidden="true"></i></div>My Profile
+        </a>
+        <button id="savedPlacesBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-heart" aria-hidden="true"></i></div>Saved Places
+        </button>
+        <button id="savedCalcsBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-bookmark" aria-hidden="true"></i></div>Saved Budgets
+        </button>
+        <div class="dd-divider" role="separator"></div>
+        <button class="dropdown-item sign-out" id="signOutBtn" role="menuitem">
+          <div class="di-icon"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></div>Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="calc-hero" id="calcHero" aria-label="Budget Calculator hero">
+  <div class="calc-hero-parallax" id="calcParallaxBg" aria-hidden="true"></div>
+  <div class="calc-hero-grid" aria-hidden="true"></div>
+  <div class="calc-hero-orb o1" aria-hidden="true"></div>
+  <div class="calc-hero-orb o2" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="calc-hero-eyebrow"><i class="fas fa-calculator" aria-hidden="true"></i> Smart Trip Planning</div>
+    <h1>Trip Budget<br><em>Calculator</em></h1>
+    <p>Plan your exact trip cost — flights, hotels, and daily spending — then convert to your local currency instantly with live exchange rates.</p>
+  </div>
+</section>
+<script>
+  const _cpb = document.getElementById('calcParallaxBg');
+  let _ct = false;
+  window.addEventListener('scroll', () => {
+    if(!_ct){ requestAnimationFrame(()=>{ if(_cpb) _cpb.style.transform=`translateY(${window.scrollY*0.3}px)`; _ct=false; }); _ct=true; }
+  }, {passive:true});
+  
+  // Traveler counter
+  let travelers = 2;
+  window.updateTravelers = function(delta) {
+    travelers = Math.max(1, Math.min(20, travelers + delta));
+    document.getElementById('travelerCount').textContent = travelers;
+  };
+</script>
+
+<!-- CALCULATOR -->
+<main class="calculator-section" id="main-content">
+  <div class="calc-container">
+
+    <!-- Left: Form -->
+    <div class="calc-form-mini">
+
+      <!-- Trip Info -->
+      <div class="form-card">
+        <h3 class="card-title">Trip Details</h3>
+        
+        <div class="field-row">
+          <div class="field-half">
+            <label for="destination">Destination</label>
+            <select id="destination" class="field-input">
+              <option value="">Select destination</option>
+            </select>
+          </div>
+          <div class="field-half">
+            <label for="tripDays">Duration (nights)</label>
+            <input type="number" id="tripDays" class="field-input" value="7" min="1">
+          </div>
+        </div>
+        
+        <div class="field-row">
+          <div class="field-half">
+            <label>Travellers</label>
+            <div class="counter-mini">
+              <button type="button" class="cnt-btn" onclick="updateTravelers(-1)"><i class="fas fa-minus"></i></button>
+              <span id="travelerCount">2</span>
+              <button type="button" class="cnt-btn" onclick="updateTravelers(1)"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="field-half">
+            <label for="fromCurrency">Currency</label>
+            <select id="fromCurrency" class="field-input"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Costs -->
+      <div class="form-card">
+        <h3 class="card-title">Estimated Costs</h3>
+        
+        <div class="cost-row">
+          <div class="cost-icon"><i class="fas fa-plane"></i></div>
+          <div class="cost-field">
+            <label>Flight (per person)</label>
+            <div class="input-prefix">
+              <span>$</span>
+              <input type="number" id="flightCost" value="500">
+            </div>
+          </div>
+        </div>
+        
+        <div class="cost-row">
+          <div class="cost-icon"><i class="fas fa-hotel"></i></div>
+          <div class="cost-field">
+            <label>Hotel (per night)</label>
+            <div class="input-prefix">
+              <span>$</span>
+              <input type="number" id="hotelCost" value="80">
+            </div>
+          </div>
+        </div>
+        
+        <div class="cost-row">
+          <div class="cost-icon"><i class="fas fa-utensils"></i></div>
+          <div class="cost-field">
+            <label>Daily spending</label>
+            <input type="range" id="dailyBudget" min="20" max="500" step="5" value="80" class="field-range">
+            <div class="range-labels">
+              <span>$20</span>
+              <span id="dailyVal">$80/day</span>
+              <span>$500</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cost-row">
+          <div class="cost-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="cost-field">
+            <label>Buffer</label>
+            <div class="buffer-options">
+              <label class="buf-opt active"><input type="radio" name="miscPct" value="10" checked><span>10%</span></label>
+              <label class="buf-opt"><input type="radio" name="miscPct" value="15"><span>15%</span></label>
+              <label class="buf-opt"><input type="radio" name="miscPct" value="20"><span>20%</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculate CTA -->
+      <button class="btn-calc-mini" id="calcBtn" type="button">
+        <i class="fas fa-calculator"></i> Calculate Budget
+      </button>
+
+    </div><!-- /.calc-form -->
+
+    <!-- Right: Results -->
+    <aside class="results-panel" id="resultsPanel" aria-live="polite" aria-label="Budget results" style="display:none;">
+
+      <!-- Results header with destination -->
+      <div class="results-header">
+        <div class="results-header-meta">
+          <span class="results-dest-chip">
+            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+            <span id="destSummary">Your Trip</span>
+          </span>
+        </div>
+        <h3>Budget Breakdown</h3>
+        <p>Estimated total cost for your trip</p>
+      </div>
+
+      <!-- Total display card -->
+      <div class="total-display">
+        <div class="total-display-inner">
+          <div class="total-label">Total Estimated Cost</div>
+          <div class="total-amount" id="totalAmount">$0</div>
+          <div class="total-per-person" id="perPersonAmount"></div>
+        </div>
+        <div class="total-display-deco" aria-hidden="true">
+          <i class="fas fa-suitcase-rolling"></i>
+        </div>
+      </div>
+
+      <!-- Breakdown list -->
+      <div class="breakdown-list" role="list" aria-label="Cost breakdown">
+        <div class="breakdown-item flight" role="listitem">
+          <div class="b-icon-wrap flight-bk"><i class="fas fa-plane" aria-hidden="true"></i></div>
+          <div class="b-info">
+            <div class="b-label">Flights</div>
+            <div class="b-sublabel">Round-trip · all travellers</div>
+          </div>
+          <div class="b-value" id="bFlight">$0</div>
+        </div>
+        <div class="breakdown-item hotel" role="listitem">
+          <div class="b-icon-wrap hotel-bk"><i class="fas fa-hotel" aria-hidden="true"></i></div>
+          <div class="b-info">
+            <div class="b-label">Accommodation</div>
+            <div class="b-sublabel">Hotel for all nights</div>
+          </div>
+          <div class="b-value" id="bHotel">$0</div>
+        </div>
+        <div class="breakdown-item daily" role="listitem">
+          <div class="b-icon-wrap daily-bk"><i class="fas fa-utensils" aria-hidden="true"></i></div>
+          <div class="b-info">
+            <div class="b-label">Daily Expenses</div>
+            <div class="b-sublabel">Food, transport &amp; activities</div>
+          </div>
+          <div class="b-value" id="bDaily">$0</div>
+        </div>
+        <div class="breakdown-item misc" role="listitem">
+          <div class="b-icon-wrap misc-bk"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
+          <div class="b-info">
+            <div class="b-label">Miscellaneous</div>
+            <div class="b-sublabel">Buffer &amp; emergencies</div>
+          </div>
+          <div class="b-value" id="bMisc">$0</div>
+        </div>
+      </div>
+
+      <!-- Visual bar chart -->
+      <div class="chart-section">
+        <div class="chart-title">
+          <i class="fas fa-chart-bar" aria-hidden="true"></i> Cost Distribution
+        </div>
+        <div class="chart-bars" role="img" aria-label="Cost distribution chart">
+          <div class="chart-row">
+            <div class="chart-lbl">Flights</div>
+            <div class="chart-wrap"><div class="chart-fill flight-fill" id="barFlight"></div></div>
+            <div class="chart-pct" id="barFlightPct">0%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-lbl">Hotel</div>
+            <div class="chart-wrap"><div class="chart-fill hotel-fill" id="barHotel"></div></div>
+            <div class="chart-pct" id="barHotelPct">0%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-lbl">Daily</div>
+            <div class="chart-wrap"><div class="chart-fill daily-fill" id="barDaily"></div></div>
+            <div class="chart-pct" id="barDailyPct">0%</div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-lbl">Misc</div>
+            <div class="chart-wrap"><div class="chart-fill misc-fill" id="barMisc"></div></div>
+            <div class="chart-pct" id="barMiscPct">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="budget-tips">
+        <h4><i class="fas fa-lightbulb" aria-hidden="true"></i> Money-Saving Tips</h4>
+        <div id="budgetTips"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="results-actions">
+        <button class="btn-save" id="saveBtn" type="button">
+          <i class="fas fa-bookmark" aria-hidden="true"></i> Save
+        </button>
+        <button class="btn-print" id="printBtn" type="button">
+          <i class="fas fa-print" aria-hidden="true"></i> Print
+        </button>
+      </div>
+
+    </aside><!-- /.results-panel -->
+
+  </div><!-- /.calc-container -->
+</main>
+
+<!-- CURRENCY CONVERTER -->
+<section class="currency-section" aria-label="Currency converter">
+  <div class="currency-wrapper">
+
+    <div class="currency-header">
+      <div class="currency-header-icon">
+        <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h2>Currency Converter</h2>
+        <p>Live exchange rates across 48 currencies via ExchangeRate API.</p>
+      </div>
+    </div>
+
+    <div class="currency-card">
+
+      <!-- Amount input -->
+      <div class="cv-amount-row">
+        <div class="input-group">
+          <label for="cvAmount">Amount to convert</label>
+          <div class="input-with-icon">
+            <span class="input-prefix-symbol">$</span>
+            <input class="calc-input has-prefix-symbol cv-amount-input" type="number"
+                   id="cvAmount" name="amount" value="100" min="0" placeholder="100">
+          </div>
+        </div>
+      </div>
+
+      <!-- From / Swap / To -->
+      <div class="cv-pair-row">
+        <div class="input-group cv-currency-group">
+          <label for="cvFromCur">From</label>
+          <div class="select-wrapper">
+            <select class="calc-select" id="cvFromCur" name="from" aria-label="Convert from currency">
+              <!-- JS fills -->
+            </select>
+            <i class="fas fa-chevron-down select-arrow" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <button class="swap-btn" id="swapBtn" type="button" aria-label="Swap currencies">
+          <i class="fas fa-arrows-alt-h" aria-hidden="true"></i>
+        </button>
+
+        <div class="input-group cv-currency-group">
+          <label for="cvToCur">To</label>
+          <div class="select-wrapper">
+            <select class="calc-select" id="cvToCur" name="to" aria-label="Convert to currency">
+              <!-- JS fills -->
+            </select>
+            <i class="fas fa-chevron-down select-arrow" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Convert button -->
+      <button class="btn-convert" id="convertBtn" type="button">
+        <i class="fas fa-sync-alt" aria-hidden="true"></i> Get Live Rate
+      </button>
+
+      <!-- States -->
+      <div class="convert-loading" id="cvLoading" aria-live="polite" role="status">
+        <i class="fas fa-circle-notch spin-anim" aria-hidden="true"></i>
+        <span>Fetching live rates…</span>
+      </div>
+      <div class="convert-err" id="cvError" role="alert"></div>
+
+      <!-- Result -->
+      <div class="convert-result" id="cvResult" aria-live="polite">
+        <div class="result-from" id="resultFrom"></div>
+        <div class="result-value" id="resultValue"></div>
+        <div class="result-rate" id="resultRate"></div>
+        <div class="result-timestamp" id="resultTimestamp"></div>
+      </div>
+
+    </div><!-- /.currency-card -->
+  </div><!-- /.currency-wrapper -->
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+        <span class="footer-logo-text">TravelTie</span>
+      </div>
+      <p>Your trusted companion for planning unforgettable travel experiences around the world.</p>
+      <div class="footer-socials" aria-label="Social media links">
+        <a class="footer-social" href="#" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="../index.html">Home</a>
+      <a href="destinations.html">Destinations</a>
+      <a href="calculator.html">Budget Calculator</a>
+      <a href="login.html"></a>
+    </div>
+    <div class="footer-col">
+      <h4>Regions</h4>
+      <a href="destinations.html?continent=Asia">Asia</a>
+      <a href="destinations.html?continent=Europe">Europe</a>
+      <a href="destinations.html?continent=Africa">Africa</a>
+      <a href="destinations.html?continent=Oceania">Oceania</a>
+      <a href="destinations.html?continent=Middle East">Middle East</a>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a href="destinations.html?budget=budget">Budget Travel</a>
+      <a href="destinations.html?budget=luxury">Luxury Travel</a>
+      <a href="login.html">Create Account</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 TravelTie. All rights reserved.</span>
+    <div><a href="#">Privacy</a><a href="#">Terms</a></div>
+  </div>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- SAVED PLACES MODAL -->
+<div id="savedPlacesModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="savedPlacesTitle" aria-modal="true" aria-hidden="true">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="savedPlacesTitle"><i class="fas fa-heart"></i> Saved Places</h3>
+      <button id="savedPlacesModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedPlacesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVED CALCULATIONS MODAL -->
+<div id="savedCalcsModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="savedCalcsTitle" aria-modal="true" aria-hidden="true">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="savedCalcsTitle"><i class="fas fa-calculator"></i> Saved Budgets</h3>
+      <button id="savedCalcsModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedCalcsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+  <div class="modal-container" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 id="loginModalTitle"><i class="fas fa-paper-plane"></i> Welcome to TravelTie</h3>
+      <button id="loginModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:24px;">
+      <div class="auth-tabs" style="display:flex;gap:8px;margin-bottom:20px;">
+        <button class="auth-tab active" data-tab="signin" style="flex:1;padding:12px;border:2px solid var(--navy);background:white;color:var(--navy);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <button class="auth-tab" data-tab="signup" style="flex:1;padding:12px;border:1px solid var(--gray-200);background:white;color:var(--gray-600);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </div>
+      <form id="quickSignInForm" class="auth-form" novalidate>
+        <input type="email" id="quickEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickPassword" class="auth-input" placeholder="Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickPasswordErr"></div>
+        <button type="submit" class="auth-btn">Sign In</button>
+      </form>
+      <form id="quickSignUpForm" class="auth-form" novalidate style="display:none;">
+        <input type="text" id="quickName" class="auth-input" placeholder="Full Name" required>
+        <div class="auth-error" id="quickNameErr"></div>
+        <input type="email" id="quickSuEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickSuEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuPassword" class="auth-input" placeholder="Password (6+ characters)" required minlength="6">
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuPasswordErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuConfirmPassword" class="auth-input" placeholder="Confirm Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuConfirmPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuConfirmPasswordErr"></div>
+        <button type="submit" class="auth-btn">Create Account</button>
+      </form>
+      <div class="auth-divider"><span>or</span></div>
+      <button type="button" id="quickGoogleBtn" class="auth-google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Minimalist Calculator Form */
+.calc-form-mini { display: flex; flex-direction: column; gap: 20px; }
+.form-card { background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--gray-100); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.card-title { font-size: 1.1rem; font-weight: 600; color: var(--navy); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--gray-100); }
+.field-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.field-row:last-child { margin-bottom: 0; }
+.field-half { flex: 1; }
+.field-input { width: 100%; padding: 12px 14px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; }
+.field-input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(10,22,40,0.08); }
+.field-input, .field-input option { font-size: 0.95rem; }
+label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--gray-600); margin-bottom: 6px; }
+.counter-mini { display: flex; align-items: center; gap: 12px; background: var(--gray-50); border-radius: 8px; padding: 8px 12px; border: 1px solid var(--gray-200); }
+.counter-mini span { font-size: 1.1rem; font-weight: 600; color: var(--navy); min-width: 24px; text-align: center; }
+.cnt-btn { width: 32px; height: 32px; border: none; background: white; border-radius: 6px; cursor: pointer; color: var(--gray-600); transition: all 0.2s; border: 1px solid var(--gray-200); }
+.cnt-btn:hover { background: var(--navy); color: white; }
+
+.cost-row { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--gray-100); align-items: flex-start; }
+.cost-row:last-child { border-bottom: none; }
+.cost-icon { width: 40px; height: 40px; background: var(--gray-50); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--navy); flex-shrink: 0; }
+.cost-field { flex: 1; }
+.cost-field label { margin-bottom: 8px; }
+.input-prefix { display: flex; align-items: center; border: 1px solid var(--gray-200); border-radius: 8px; overflow: hidden; }
+.input-prefix span { padding: 10px 12px; background: var(--gray-50); color: var(--gray-500); font-weight: 500; }
+.input-prefix input { border: none; padding: 10px 12px; font-size: 1rem; flex: 1; border-radius: 0; }
+.input-prefix input:focus { outline: none; }
+.field-range { width: 100%; height: 6px; border-radius: 3px; background: var(--gray-200); -webkit-appearance: none; appearance: none; cursor: pointer; margin: 12px 0 8px; }
+.field-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--navy); border-radius: 50%; cursor: pointer; }
+.range-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gray-500); }
+.buffer-options { display: flex; gap: 8px; }
+.buf-opt { flex: 1; cursor: pointer; }
+.buf-opt input { display: none; }
+.buf-opt span { display: block; padding: 10px; text-align: center; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
+.buf-opt input:checked + span { background: var(--navy); color: white; border-color: var(--navy); }
+
+.btn-calc-mini { width: 100%; padding: 16px; background: var(--navy); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-calc-mini:hover { opacity: 0.9; }
+
+@media (max-width: 600px) {
+  .field-row { flex-direction: column; gap: 12px; }
+  .cost-row { flex-direction: column; gap: 12px; }
+  .buffer-options { flex-wrap: wrap; }
+}
+
+.auth-tabs .auth-tab.active { background: white; color: var(--navy); border: 2px solid var(--navy); }
+.auth-tabs .auth-tab:not(.active) { background: white; color: var(--gray-600); border: 2px solid var(--gray-200); }
+.auth-tabs { flex-wrap: wrap; }
+@media (max-width: 400px) {
+  .auth-tabs { gap: 6px; }
+  .auth-tab { padding: 10px 8px; font-size: 0.9rem; }
+  .auth-tabs .auth-tab { flex: 1 1 calc(50% - 6px); }
+}
+@media (max-width:480px) {
+  .auth-tabs { flex-direction:column !important; gap:8px !important; }
+  .auth-tab { width:100%; }
+}
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-input { width: 100%; padding: 14px 16px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+.auth-input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(10,22,40,0.1); }
+.auth-input.error { border-color: #dc2626; }
+.auth-input::placeholder { color: var(--gray-400); }
+.auth-error { font-size: 0.75rem; color: #dc2626; min-height: 16px; }
+.auth-pw-wrap { position: relative; }
+.auth-toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 4px; }
+.auth-toggle-pw:hover { color: var(--navy); }
+.auth-btn { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
+.auth-btn:hover { opacity: 0.9; }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-divider { display: flex; align-items: center; gap: 16px; margin: 8px 0; color: var(--gray-400); font-size: 0.85rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+.auth-google-btn { width: 100%; padding: 14px; background: white; border: 1px solid var(--gray-200); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; transition: background 0.2s; }
+.auth-google-btn:hover { background: var(--gray-50); }
+.auth-google-btn i { font-size: 1.1rem; }
+</style>
+
+<script type="module" src="../js/firebase.js"></script>
+<script type="module" src="../js/destinations.js"></script>
+<script type="module" src="../js/calculator.js"></script>
+<script type="module" src="../js/modals.js"></script>
+
+<script>
+  // Header scroll effect — initNav() in firebase.js handles the menu toggle
+  window.addEventListener('scroll', () => {
+    document.querySelector('header')?.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+</script>
+<script>
+  // Login modal close handlers
+  document.getElementById('loginModalClose')?.addEventListener('click', () => {
+    document.getElementById('loginModalOverlay')?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('loginModalOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Toggle password visibility
+  window.togglePw = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input || !btn) return;
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    btn.innerHTML = isPw ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  };
+  
+  // Auth tab switching
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const isSignUp = this.dataset.tab === 'signup';
+      document.querySelectorAll('.auth-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.background = '';
+        t.style.color = '';
+      });
+      this.classList.add('active');
+      this.style.background = 'white';
+      this.style.border = '2px solid var(--navy)';
+      this.style.color = 'var(--navy)';
+      document.getElementById('quickSignInForm').style.display = isSignUp ? 'none' : 'block';
+      document.getElementById('quickSignUpForm').style.display = isSignUp ? 'block' : 'none';
+    });
+  });
+  
+  const clearAuthErr = (ids) => { ids.forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = ''; el.previousElementSibling?.classList.remove('error'); } }); };
+  const setAuthErr = (id, msg) => { const el = document.getElementById(id); if (el) { el.textContent = msg; const inp = el.previousElementSibling; if (inp) inp.classList.add('error'); } };
+  
+  // Quick Sign In
+  document.getElementById('quickSignInForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickEmailErr', 'quickPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const email = document.getElementById('quickEmail')?.value.trim();
+    const pw = document.getElementById('quickPassword')?.value;
+    if (!email) { setAuthErr('quickEmailErr', 'Email is required'); return; }
+    if (!pw) { setAuthErr('quickPasswordErr', 'Password is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickEmailErr', 'Invalid email format'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signIn(email, pw);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome back!', 'success');
+      } else {
+        btn.textContent = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Invalid email or password', 'error');
+      }
+    } catch(err) {
+      btn.textContent = orig;
+      btn.disabled = false;
+      showToast('Sign in failed', 'error');
+    }
+  });
+  
+  // Quick Sign Up
+  document.getElementById('quickSignUpForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickNameErr', 'quickSuEmailErr', 'quickSuPasswordErr', 'quickSuConfirmPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const name = document.getElementById('quickName')?.value.trim();
+    const email = document.getElementById('quickSuEmail')?.value.trim();
+    const pw = document.getElementById('quickSuPassword')?.value;
+    const cpw = document.getElementById('quickSuConfirmPassword')?.value;
+    if (!name) { setAuthErr('quickNameErr', 'Name is required'); return; }
+    if (!email) { setAuthErr('quickSuEmailErr', 'Email is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickSuEmailErr', 'Invalid email format'); return; }
+    if (!pw || pw.length < 6) { setAuthErr('quickSuPasswordErr', 'Password must be 6+ characters'); return; }
+    if (pw !== cpw) { setAuthErr('quickSuConfirmPasswordErr', 'Passwords do not match'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signUp(email, pw, name);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Account created! <i class="fas fa-check"></i>', 'success');
+      } else {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Sign up failed', 'error');
+      }
+    } catch(err) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      showToast('Sign up failed', 'error');
+    }
+  });
+  
+  // Google Sign In
+  document.getElementById('quickGoogleBtn')?.addEventListener('click', async () => {
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const btn = document.getElementById('quickGoogleBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch spin-anim"></i> Connecting...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.googleSignIn();
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome! <i class="fas fa-check"></i>', 'success');
+      } else {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Google sign in failed', 'error');
+      }
+    } catch(err) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      showToast('Google sign in failed', 'error');
+    }
+  });
+
+  // Load saved calculation from sessionStorage (runs on page load)
+  document.addEventListener('DOMContentLoaded', function loadSavedCalcFromStorage() {
+    document.removeEventListener('DOMContentLoaded', loadSavedCalcFromStorage);
+    try {
+      const saved = sessionStorage.getItem('tt_load_calc');
+      if (!saved) return;
+      const calc = JSON.parse(saved);
+      sessionStorage.removeItem('tt_load_calc');
+      
+      // Get calc data
+      const dest = calc.destination || calc.destName || calc.name || '';
+      const days = calc.days || calc.nights || calc.duration || 7;
+      const travelers = calc.travelers || calc.people || 2;
+      const total = calc.total || calc.totalCost || calc.grandTotal || 0;
+      const breakdown = calc.breakdown || calc.items || calc.costs || {};
+      
+      // Set days
+      const daysEl = document.getElementById('tripDays');
+      if (daysEl) {
+        daysEl.value = days;
+        daysEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      
+      // Set travelers
+      const travEl = document.getElementById('travelerCount');
+      if (travEl) {
+        travEl.textContent = travelers;
+        travEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      
+      // Set cost fields from breakdown
+      if (breakdown.flight !== undefined) {
+        const flEl = document.getElementById('flightCost');
+        if (flEl) { flEl.value = breakdown.flight; flEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      }
+      if (breakdown.hotel !== undefined) {
+        const htEl = document.getElementById('hotelCost');
+        if (htEl) { htEl.value = breakdown.hotel; htEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      }
+      if (breakdown.daily !== undefined) {
+        const dlEl = document.getElementById('dailyBudget');
+        if (dlEl) { 
+          dlEl.value = breakdown.daily; 
+          dlEl.dispatchEvent(new Event('input', { bubbles: true }));
+          const dlVal = document.getElementById('dailyVal');
+          if (dlVal) dlVal.textContent = '$' + breakdown.daily + '/day';
+        }
+      }
+      if (breakdown.other !== undefined) {
+        const otEl = document.getElementById('otherCost');
+        if (otEl) { otEl.value = breakdown.other; otEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      }
+      
+      // Add destination if not in dropdown (optional)
+      const destSelect = document.getElementById('destinationSelect') || document.getElementById('destination');
+      if (destSelect && dest) {
+        let opt = Array.from(destSelect.options).find(o => o.textContent.includes(dest) || o.value === dest);
+        if (!opt) {
+          opt = new Option(dest, dest, true, true);
+          destSelect.add(opt);
+        }
+        if (opt) destSelect.value = opt.value;
+        destSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      
+      // Calculate and update total
+      if (typeof calculate === 'function') {
+        setTimeout(() => calculate(), 100);
+      }
+      
+      console.log('Loaded saved calculation:', calc);
+    } catch(e) { console.warn('Could not load saved calc:', e); }
+  });
+</script>
+</body>
+</html>
