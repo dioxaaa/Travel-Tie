@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TravelTie — Smart budgeting tools, 409 curated destinations, and live currency conversion for your perfect journey.">
+  <title>TravelTie — Plan Your Perfect Journey</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/destinations.css">
+</head>
+<body>
+
+<a href="#main-content" class="skip-link" id="skipLink">Skip to main content</a>
+
+<header>
+  <a href="index.html" class="logo" aria-label="TravelTie Home">
+    <div class="logo-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+    <div class="logo-text"><span class="t1">Travel</span><span class="t2">Tie</span></div>
+  </a>
+
+  <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+    <a href="index.html" class="active">Home</a>
+    <a href="pages/destinations.html">Destinations</a>
+    <a href="pages/calculator.html">Calculator</a>
+  </nav>
+
+  <button class="menu-toggle" id="menuToggle"
+          aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+    <span class="bars-wrap" aria-hidden="true">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+    <i class="fas fa-bars icon-bars" aria-hidden="true" style="display:none"></i>
+    <i class="fas fa-times icon-times" aria-hidden="true" style="display:none"></i>
+  </button>
+
+  <div class="auth-section">
+    <a href="pages/login.html" class="btn-signin" id="signInBtn"
+       aria-label="Sign in to your account">
+      <i class="fas fa-user" aria-hidden="true"></i>
+      <span class="btn-signin-label" aria-hidden="true">Sign In</span>
+    </a>
+    <div class="user-dropdown" id="userDropdown" aria-label="User menu" style="display:none;">
+      <button class="user-profile-btn" id="userProfileBtn"
+              aria-haspopup="true" aria-expanded="false" aria-controls="userDropdownMenu">
+        <div class="user-avatar" id="userAvatarBtn" aria-hidden="true">U</div>
+        <span class="u-name" id="userNameBtn">User</span>
+        <i class="fas fa-chevron-down u-chevron" aria-hidden="true"></i>
+      </button>
+      <div class="user-dropdown-menu" id="userDropdownMenu" role="menu" aria-hidden="true">
+        <div class="dd-header">
+          <div class="dd-avatar-row">
+            <div class="dd-avatar-lg" id="ddAvatarText" aria-hidden="true">U</div>
+            <div class="dd-user-info">
+              <div class="dd-name" id="ddName">User</div>
+              <div class="dd-email" id="ddEmail"></div>
+            </div>
+          </div>
+        </div>
+        <a href="pages/profile.html" class="dropdown-item" role="menuitem">
+          <div class="di-icon"><i class="fas fa-user" aria-hidden="true"></i></div>My Profile
+        </a>
+        <button id="savedPlacesBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-heart" aria-hidden="true"></i></div>Saved Places
+        </button>
+        <button id="savedCalcsBtn" class="dropdown-item" role="menuitem"
+                style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <div class="di-icon"><i class="fas fa-bookmark" aria-hidden="true"></i></div>Saved Budgets
+        </button>
+        <div class="dd-divider" role="separator"></div>
+        <button class="dropdown-item sign-out" id="signOutBtn" role="menuitem">
+          <div class="di-icon"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></div>Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main-content">
+
+<!-- ══ HERO with Parallax ══ -->
+<section class="hero" id="hero" aria-label="Hero section">
+  <div class="hero-parallax-bg" id="parallaxBg" aria-hidden="true"></div>
+  <div class="hero-grid-overlay" aria-hidden="true"></div>
+  <div class="hero-orb o1" aria-hidden="true"></div>
+  <div class="hero-orb o2" aria-hidden="true"></div>
+  <div class="hero-orb o3" aria-hidden="true"></div>
+
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow"><i class="fas fa-star" aria-hidden="true"></i> Trusted by 50,000+ travellers worldwide</div>
+      <h1 id="heroWelcome">Explore the World with <em>Confidence</em></h1>
+      <p class="hero-desc">Smart budgeting tools, curated guides for destinations across 7 world regions, and live currency conversion — your complete travel companion.</p>
+      <div class="hero-actions">
+        <a href="pages/destinations.html" class="btn-hero-primary"><i class="fas fa-compass" aria-hidden="true"></i> Explore Destinations</a>
+        <a href="pages/calculator.html"   class="btn-hero-secondary"><i class="fas fa-calculator" aria-hidden="true"></i> Plan Budget</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-search-card">
+        <h3>Find Your Next Adventure</h3>
+        <div class="sf-group">
+          <div class="sf-field">
+            <label for="heroQ">Where to?</label>
+            <input type="text" id="heroQ" placeholder="Tokyo, Bali, Paris, Petra…" autocomplete="off">
+          </div>
+          <div class="sf-row">
+            <div class="sf-field">
+              <label for="heroRegion">Region</label>
+              <select id="heroRegion">
+                <option value="">Any Region</option>
+                <option value="Asia">Asia</option>
+                <option value="Europe">Europe</option>
+                <option value="North America">North America</option>
+                <option value="South America">South America</option>
+                <option value="Africa">Africa</option>
+                <option value="Oceania">Oceania</option>
+                <option value="Middle East">Middle East</option>
+              </select>
+            </div>
+            <div class="sf-field">
+              <label for="heroBudget">Budget</label>
+              <select id="heroBudget">
+                <option value="">Any Budget</option>
+                <option value="budget">Budget-Friendly</option>
+                <option value="moderate">Moderate</option>
+                <option value="luxury">Luxury</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button class="btn-search" id="heroSearchBtn">
+          <i class="fas fa-search" aria-hidden="true"></i> Search Destinations
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" aria-hidden="true">
+    <span>Scroll to explore</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section class="sec bg-gray-50" aria-label="Features">
+  <div class="features-wrap">
+    <div class="sec-header">
+      <span class="sec-eyebrow">Why TravelTie?</span>
+      <h2>Everything You Need to Travel Smart</h2>
+      <p>From destination discovery to budgeting and currency conversion — we cover every step.</p>
+    </div>
+    <div class="features-grid">
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></div>
+        <h3>409 Curated Destinations</h3>
+        <p>Handpicked places in each of 7 world regions with accurate scenery, insider highlights, and real travel tips.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-calculator" aria-hidden="true"></i></div>
+        <h3>Smart Budget Calculator</h3>
+        <p>Plan flights, hotels, and daily costs with a visual chart breakdown. Know exactly what your trip costs before you go.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-exchange-alt" aria-hidden="true"></i></div>
+        <h3>Live Currency Conversion</h3>
+        <p>Convert between 48 currencies with real-time ExchangeRate API data so you always know your true local spend.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-heart" aria-hidden="true"></i></div>
+        <h3>Save Favourite Places</h3>
+        <p>Build a personal wishlist synced to your account, accessible from any device anytime.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-globe" aria-hidden="true"></i></div>
+        <h3>Interactive World Map</h3>
+        <p>All 409 destinations pinned on a live map. Click any pin to dive into that destination instantly.</p>
+      </article>
+      <article class="feat-card">
+        <div class="feat-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
+        <h3>Secure & Free</h3>
+        <p>Sign up in seconds with email or Google. Firebase Authentication keeps your account safe and private.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURED DESTINATIONS ══ -->
+<section class="sec bg-white" aria-label="Featured destinations">
+  <div class="dest-wrap">
+    <div class="sec-header">
+      <span class="sec-eyebrow">Top Picks</span>
+      <h2>Featured Destinations</h2>
+      <p>Handpicked destinations loved by our community of travellers around the world.</p>
+    </div>
+    <div class="dest-preview-grid" id="featuredGrid" aria-live="polite" aria-label="Featured destinations grid"></div>
+    <div class="sec-cta mt-8px">
+      <a href="pages/destinations.html" class="btn-outline"><i class="fas fa-compass" aria-hidden="true"></i> View All Destinations</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAP ══ -->
+<section class="map-sec" aria-label="World map">
+  <div class="map-header">
+    <div>
+      <h2>Destinations Around the World</h2>
+      <p>Click any pin to explore that destination.</p>
+    </div>
+      <a href="pages/destinations.html" class="btn-outline font-sm-85 map-view-btn">
+        <i class="fas fa-list" aria-hidden="true"></i> All Destinations
+      </a>
+  </div>
+  <div id="destinationMap" aria-label="Interactive world map showing destination pins">
+    <div class="map-loading"><i class="fas fa-spinner" aria-hidden="true"></i><p>Loading map…</p></div>
+  </div>
+</section>
+
+<!-- ══ WHY ══ -->
+<section class="why-sec" aria-label="Why TravelTie">
+  <div class="max-w-1200">
+    <div class="sec-header">
+      <span class="sec-eyebrow">Our Promise</span>
+      <h2>Travel Better, Spend Smarter</h2>
+      <p>Every journey deserves to be well-planned and stress-free.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon"><i class="fas fa-bolt" aria-hidden="true"></i></div><h3>Fast & Simple</h3><p>Full trip budget in under 2 minutes. No spreadsheets, no hassle.</p></div>
+      <div class="why-card"><div class="why-icon"><i class="fas fa-lock" aria-hidden="true"></i></div><h3>Private & Secure</h3><p>Firebase Authentication and Firestore protect your account and data.</p></div>
+      <div class="why-card"><div class="why-icon"><i class="fas fa-sync" aria-hidden="true"></i></div><h3>Always Current</h3><p>Live exchange rates and Firestore-powered destination data updated automatically.</p></div>
+      <div class="why-card"><div class="why-icon"><i class="fas fa-mobile-alt" aria-hidden="true"></i></div><h3>Works Everywhere</h3><p>Fully responsive — desktop, tablet, or phone. Looks great on all screens.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon"><i class="fas fa-paper-plane" aria-hidden="true"></i></div>
+        <span class="footer-logo-text">TravelTie</span>
+      </div>
+      <p>Your trusted companion for planning unforgettable travel experiences around the world.</p>
+      <div class="footer-socials" aria-label="Social media links">
+        <a class="footer-social" href="#" title="Instagram" aria-label="Follow us on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="Twitter" aria-label="Follow us on Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="Facebook" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+        <a class="footer-social" href="#" title="YouTube" aria-label="Follow us on YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="index.html">Home</a>
+      <a href="pages/destinations.html">Destinations</a>
+      <a href="pages/calculator.html">Budget Calculator</a>
+      <a href="pages/login.html">Sign In</a>
+    </div>
+    <div class="footer-col">
+      <h4>Regions</h4>
+      <a href="pages/destinations.html?continent=Asia">Asia</a>
+      <a href="pages/destinations.html?continent=Europe">Europe</a>
+      <a href="pages/destinations.html?continent=Africa">Africa</a>
+      <a href="pages/destinations.html?continent=Oceania">Oceania</a>
+      <a href="pages/destinations.html?continent=Middle East">Middle East</a>
+    </div>
+    <div class="footer-col">
+      <h4>Stay Connected</h4>
+      <p class="text-white-40 font-sm-85">Get travel deals in your inbox.</p>
+      <div class="f-nl">
+        <label for="nlEmailHome" class="sr-only">Email address</label>
+        <input type="email" id="nlEmailHome" placeholder="Your email" autocomplete="email">
+        <button id="nlBtnHome" aria-label="Subscribe to newsletter"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 TravelTie. All rights reserved.</span>
+    <div><a href="#">Privacy</a><a href="#">Terms</a></div>
+  </div>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<style>
+  .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
+
+  /* Hero parallax background */
+  .hero-parallax-bg {
+    position: absolute; inset: -60px;
+    background:
+      linear-gradient(rgba(10,22,40,.72) 0%, rgba(10,22,40,.85) 100%),
+      url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1600&q=85') center/cover no-repeat;
+    will-change: transform;
+  }
+  .hero-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+    pointer-events: none;
+  }
+
+  /* Responsive saved places modal */
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Old modal styles - now using global .modal-overlay, .modal-container */
+  #savedPlacesModal, #savedCalcsModal { display: none; }
+</style>
+
+<!-- SAVED PLACES MODAL -->
+<div id="savedPlacesModalOverlay" class="modal-overlay">
+  <div class="modal-container" role="dialog" aria-labelledby="savedPlacesTitle" aria-hidden="true">
+    <div class="modal-header">
+      <h3 id="savedPlacesTitle"><i class="fas fa-heart"></i> Saved Places</h3>
+      <button id="savedPlacesModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedPlacesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModalOverlay" class="modal-overlay" role="dialog" aria-labelledby="loginModalTitle" aria-hidden="true">
+  <div class="modal-container" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 id="loginModalTitle"><i class="fas fa-paper-plane"></i> Welcome to TravelTie</h3>
+      <button id="loginModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:24px;">
+      <!-- Tab buttons -->
+      <div class="auth-tabs" style="display:flex;gap:8px;margin-bottom:20px;">
+        <button class="auth-tab active" data-tab="signin" style="flex:1;padding:12px;border:2px solid var(--navy);background:white;color:var(--navy);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <button class="auth-tab" data-tab="signup" style="flex:1;padding:12px;border:1px solid var(--gray-200);background:white;color:var(--gray-600);border-radius:var(--r-lg);font-weight:600;cursor:pointer;">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </div>
+      
+      <!-- Sign In Form -->
+      <form id="quickSignInForm" class="auth-form" novalidate>
+        <input type="email" id="quickEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickPassword" class="auth-input" placeholder="Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickPasswordErr"></div>
+        <button type="submit" class="auth-btn">Sign In</button>
+      </form>
+      
+      <!-- Sign Up Form (hidden by default) -->
+      <form id="quickSignUpForm" class="auth-form" novalidate style="display:none;">
+        <input type="text" id="quickName" class="auth-input" placeholder="Full Name" required>
+        <div class="auth-error" id="quickNameErr"></div>
+        <input type="email" id="quickSuEmail" class="auth-input" placeholder="Email" required>
+        <div class="auth-error" id="quickSuEmailErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuPassword" class="auth-input" placeholder="Password (6+ characters)" required minlength="6">
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuPasswordErr"></div>
+        <div class="auth-pw-wrap">
+          <input type="password" id="quickSuConfirmPassword" class="auth-input" placeholder="Confirm Password" required>
+          <button type="button" class="auth-toggle-pw" onclick="togglePw('quickSuConfirmPassword',this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="auth-error" id="quickSuConfirmPasswordErr"></div>
+        <button type="submit" class="auth-btn">Create Account</button>
+      </form>
+      
+      <div class="auth-divider"><span>or</span></div>
+      
+      <button type="button" id="quickGoogleBtn" class="auth-google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.auth-tabs .auth-tab.active { background: white; color: var(--navy); border: 2px solid var(--navy); }
+.auth-tabs .auth-tab:not(.active) { background: white; color: var(--gray-600); border: 2px solid var(--gray-200); }
+.auth-tabs { flex-wrap: wrap; }
+@media (max-width: 400px) {
+  .auth-tabs { gap: 6px; }
+  .auth-tab { padding: 10px 8px; font-size: 0.9rem; }
+  .auth-tabs .auth-tab { flex: 1 1 calc(50% - 6px); }
+}
+.auth-form { display: flex; flex-direction: column; gap: 12px; }
+.auth-input { width: 100%; padding: 14px 16px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+.auth-input:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(10,22,40,0.1); }
+.auth-input.error { border-color: #dc2626; }
+.auth-input::placeholder { color: var(--gray-400); }
+.auth-error { font-size: 0.75rem; color: #dc2626; min-height: 16px; }
+.auth-pw-wrap { position: relative; }
+.auth-toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 4px; }
+.auth-toggle-pw:hover { color: var(--navy); }
+.auth-btn { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: opacity 0.2s; }
+.auth-btn:hover { opacity: 0.9; }
+.auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-divider { display: flex; align-items: center; gap: 16px; margin: 8px 0; color: var(--gray-400); font-size: 0.85rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+.auth-google-btn { width: 100%; padding: 14px; background: white; border: 1px solid var(--gray-200); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; transition: background 0.2s; }
+.auth-google-btn:hover { background: var(--gray-50); }
+.auth-google-btn i { font-size: 1.1rem; }
+</style>
+
+<!-- SAVED CALCULATIONS MODAL -->
+<div id="savedCalcsModalOverlay" class="modal-overlay">
+  <div class="modal-container" role="dialog" aria-labelledby="savedCalcsTitle" aria-hidden="true">
+    <div class="modal-header">
+      <h3 id="savedCalcsTitle"><i class="fas fa-calculator"></i> Saved Budgets</h3>
+      <button id="savedCalcsModalClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="savedCalcsList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/destinations.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+<script>
+  // Parallax
+  const parallaxBg = document.getElementById('parallaxBg');
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        if (parallaxBg) parallaxBg.style.transform = `translateY(${window.scrollY * 0.38}px)`;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Newsletter (footer)
+  document.getElementById('nlBtnHome')?.addEventListener('click', () => {
+    const e = document.getElementById('nlEmailHome')?.value.trim();
+    if (e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+      showToast('Subscribed! <i class="fas fa-check"></i>','success');
+      document.getElementById('nlEmailHome').value = '';
+    } else showToast('Please enter a valid email.','error');
+  });
+
+  // Update hero stat after destinations load
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      const s = document.querySelector('.hero-stat .s-num');
+      if (s && window.DESTINATIONS?.length > 0) s.textContent = window.DESTINATIONS.length + '+';
+    }, 2000);
+  });
+
+  // Saved Places button handler
+  document.getElementById('savedPlacesBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    // Check if logged in, show modal if not
+    if (TT && TT.currentUser()) {
+      if (typeof TTModals !== 'undefined') TTModals.openSavedPlaces();
+    } else {
+      document.getElementById('loginModalOverlay')?.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  // Saved Calculations button handler
+  document.getElementById('savedCalcsBtn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (TT && TT.currentUser()) {
+      if (typeof TTModals !== 'undefined') TTModals.openSavedCalcs();
+    } else {
+      document.getElementById('loginModalOverlay')?.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  });
+
+  // Login modal close handlers
+  document.getElementById('loginModalClose')?.addEventListener('click', () => {
+    document.getElementById('loginModalOverlay')?.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('loginModalOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Toggle password visibility
+  window.togglePw = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input || !btn) return;
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    btn.innerHTML = isPw ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+  };
+  
+  // Auth tab switching
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      const isSignUp = this.dataset.tab === 'signup';
+      document.querySelectorAll('.auth-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.background = '';
+        t.style.color = '';
+      });
+      this.classList.add('active');
+      this.style.background = 'white';
+      this.style.border = '2px solid var(--navy)';
+      this.style.color = 'var(--navy)';
+      document.getElementById('quickSignInForm').style.display = isSignUp ? 'none' : 'block';
+      document.getElementById('quickSignUpForm').style.display = isSignUp ? 'block' : 'none';
+    });
+  });
+  
+  // Quick Sign In
+  const clearAuthErr = (ids) => { ids.forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = ''; el.previousElementSibling?.classList.remove('error'); } }); };
+  const setAuthErr = (id, msg) => { const el = document.getElementById(id); if (el) { el.textContent = msg; const inp = el.previousElementSibling; if (inp) inp.classList.add('error'); } };
+  
+  document.getElementById('quickSignInForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickEmailErr', 'quickPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const email = document.getElementById('quickEmail')?.value.trim();
+    const pw = document.getElementById('quickPassword')?.value;
+    if (!email) { setAuthErr('quickEmailErr', 'Email is required'); return; }
+    if (!pw) { setAuthErr('quickPasswordErr', 'Password is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickEmailErr', 'Invalid email format'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signIn(email, pw);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome back!', 'success');
+      } else {
+        btn.textContent = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Invalid email or password', 'error');
+      }
+    } catch(err) {
+      btn.textContent = orig;
+      btn.disabled = false;
+      showToast('Sign in failed', 'error');
+    }
+  });
+  
+  // Quick Sign Up
+  document.getElementById('quickSignUpForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearAuthErr(['quickNameErr', 'quickSuEmailErr', 'quickSuPasswordErr', 'quickSuConfirmPasswordErr']);
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const name = document.getElementById('quickName')?.value.trim();
+    const email = document.getElementById('quickSuEmail')?.value.trim();
+    const pw = document.getElementById('quickSuPassword')?.value;
+    const cpw = document.getElementById('quickSuConfirmPassword')?.value;
+    if (!name) { setAuthErr('quickNameErr', 'Name is required'); return; }
+    if (!email) { setAuthErr('quickSuEmailErr', 'Email is required'); return; }
+    if (!email.includes('@') || !email.includes('.')) { setAuthErr('quickSuEmailErr', 'Invalid email format'); return; }
+    if (!pw || pw.length < 6) { setAuthErr('quickSuPasswordErr', 'Password must be 6+ characters'); return; }
+    if (pw !== cpw) { setAuthErr('quickSuConfirmPasswordErr', 'Passwords do not match'); return; }
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.signUp(email, pw, name);
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Account created!', 'success');
+      } else {
+        btn.textContent = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Sign up failed', 'error');
+      }
+    } catch(err) {
+      btn.textContent = orig;
+      btn.disabled = false;
+      showToast('Sign up failed', 'error');
+    }
+  });
+  
+  // Google Sign In
+  document.getElementById('quickGoogleBtn')?.addEventListener('click', async () => {
+    if (!window.TT) { showToast('Please wait...', 'info'); return; }
+    const btn = document.getElementById('quickGoogleBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-circle-notch spin-anim"></i> Connecting...';
+    btn.disabled = true;
+    
+    try {
+      const res = await window.TT.googleSignIn();
+      if (res.ok) {
+        document.getElementById('loginModalOverlay')?.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast('Welcome! <i class="fas fa-check"></i>', 'success');
+      } else {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+        showToast(res.err || 'Google sign in failed', 'error');
+      }
+    } catch(err) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      showToast('Google sign in failed', 'error');
+    }
+  });
+</script>
+<script type="module" src="js/destinations.js"></script>
+<script type="module" src="js/modals.js"></script>
+
+</body>
+</html>
