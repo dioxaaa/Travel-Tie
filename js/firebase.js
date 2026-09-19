@@ -15,7 +15,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey:            "",
+  apiKey:            import.meta.env?.FIREBASE_API_KEY || "",
   authDomain:        "travel-tie.firebaseapp.com",
   projectId:         "travel-tie",
   storageBucket:     "travel-tie.firebasestorage.app",
