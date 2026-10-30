@@ -136,25 +136,35 @@ function renderSaved(saved) {
   }
   if (empty) empty.style.display = 'none';
 
+  const esc = window.ttEsc;
+  const fallbackImg = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80';
   grid.innerHTML = _currentSaved.map((d, i) => `
     <div class="saved-card" data-idx="${i}">
       <div class="saved-img">
-        <img src="${d.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80'}"
-             alt="${d.name} scenery" loading="lazy"
-             onerror="this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80'">
-        <span class="sc-badge ${d.budget || ''}">
+        <img src="${esc(ttSafeUrl(d.image, fallbackImg))}"
+             alt="${esc(d.name)} scenery" loading="lazy"
+             onerror="this.src='${fallbackImg}'">
+        <span class="sc-badge ${esc(d.budget || '')}">
           ${d.budget === 'budget' ? 'Budget' : d.budget === 'luxury' ? 'Luxury' : 'Moderate'}
         </span>
       </div>
       <div class="saved-body">
-        <h4>${d.name}</h4>
-        <p class="sc-country"><i class="fas fa-map-marker-alt"></i>${d.country || ''}</p>
+        <h4>${esc(d.name)}</h4>
+        <p class="sc-country"><i class="fas fa-map-marker-alt"></i>${esc(d.country || '')}</p>
         <div class="saved-actions">
           <button class="btn-explore btn-explore-modal" data-idx="${i}"><i class="fas fa-compass"></i> Explore</button>
-          <button class="btn-remove" onclick="removeSaved('${d.docId}','${d.name}')"><i class="fas fa-trash-alt"></i></button>
+          <button class="btn-remove" data-idx="${i}"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
     </div>`).join('');
+
+  grid.querySelectorAll('.btn-remove').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const place = _currentSaved[parseInt(btn.dataset.idx)];
+      if (place) removeSaved(place.docId, place.name);
+    });
+  });
 
   // Wire Explore buttons to open detail modal
   grid.querySelectorAll('.btn-explore-modal').forEach(btn => {
@@ -214,7 +224,7 @@ function openSavedPlaceDetail(place, allPlaces) {
   if (!c) return;
 
   const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='220'%3E%3Crect width='400' height='220' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='14' fill='%2394a3b8' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E";
-  function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  const esc = window.ttEsc;
 
   const name       = place.name || 'Unknown Place';
   const country    = place.country || '';
@@ -222,7 +232,7 @@ function openSavedPlaceDetail(place, allPlaces) {
   const loc        = [country, continent].filter(Boolean).join(', ');
   const tier       = (place.budget || '').toLowerCase();
   const tierLabel  = tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : '';
-  const img        = place.image || place.img || PLACEHOLDER;
+  const img        = ttSafeUrl(place.image || place.img, PLACEHOLDER);
   const desc       = place.description || '';
   const highlights = Array.isArray(place.highlights) ? place.highlights.filter(Boolean) : [];
   const tips       = Array.isArray(place.tips) ? place.tips.filter(Boolean) : [];
@@ -270,7 +280,7 @@ function openSavedPlaceDetail(place, allPlaces) {
       await TT.removeDest(place.docId);
       document.getElementById(SP_OV).classList.remove('active');
       document.body.style.overflow = '';
-      showToast(`${name} removed.`, 'info');
+      showToast(`${esc(name)} removed.`, 'info');
     });
   }
 }
@@ -496,7 +506,7 @@ async function loadCalcHistory() {
 // ── Remove saved destination ────────────────────────────────
 window.removeSaved = async function(docId, name) {
   const res = await TT.removeDest(docId);
-  if (res.ok) showToast(`${name} removed.`, 'info');
+  if (res.ok) showToast(`${ttEsc(name)} removed.`, 'info');
   else showToast('Could not remove.', 'error');
 };
 

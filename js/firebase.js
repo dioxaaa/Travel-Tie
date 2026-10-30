@@ -689,6 +689,19 @@ window.TT = {
   },
 };
 
+const TT_HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+window.ttEsc = function(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => TT_HTML_ESCAPES[c]);
+};
+
+window.ttSafeUrl = function(url, fallback = '') {
+  try {
+    const u = new URL(String(url || '').trim(), window.location.href);
+    if (u.protocol === 'https:' || u.protocol === 'http:') return u.href;
+  } catch (_) {}
+  return fallback;
+};
+
 window.showToast = function(msg, type = 'info') {
   let t = document.getElementById('toast');
   if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }

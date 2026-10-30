@@ -135,6 +135,8 @@ function normalise(docId, fsData) {
   };
 }
 
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85';
+
 // ── Global cache ──────────────────────────────────────────────
 window.DESTINATIONS = [];
 let _loaded = false, _loadError = false;
@@ -323,31 +325,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     const start = (currentPage - 1) * PER_PAGE;
     const items = filtered.slice(start, start + PER_PAGE);
 
+    const esc = window.ttEsc;
     grid.innerHTML = items.map((d, i) => `
-      <div class="dest-preview-card" style="animation-delay:${i * 0.055}s"
-           onclick="openModal(DESTINATIONS.find(x=>x.id==='${d.id}'))">
+      <div class="dest-preview-card" style="animation-delay:${i * 0.055}s" data-id="${esc(d.id)}">
         <div class="dc-img">
-          <img src="${d.image}" alt="${d.name}" loading="lazy"
+          <img src="${esc(ttSafeUrl(d.image, FALLBACK_IMG))}" alt="${esc(d.name)}" loading="lazy"
                onerror="this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85'">
-          <span class="dc-badge ${d.budget}">${d.budget === 'budget' ? 'Budget-Friendly' : d.budget === 'luxury' ? 'Luxury' : 'Moderate'}</span>
-          <span class="dc-rating"><i class="fas fa-star"></i>${d.rating}</span>
-          <button class="fav-btn ${savedMap[d.id] ? 'active' : ''}"
-                  onclick="event.stopPropagation();toggleFav('${d.id}')" title="Save destination"
+          <span class="dc-badge ${esc(d.budget)}">${d.budget === 'budget' ? 'Budget-Friendly' : d.budget === 'luxury' ? 'Luxury' : 'Moderate'}</span>
+          <span class="dc-rating"><i class="fas fa-star"></i>${esc(d.rating)}</span>
+          <button class="fav-btn ${savedMap[d.id] ? 'active' : ''}" title="Save destination"
                   aria-label="${savedMap[d.id] ? 'Remove from saved' : 'Save destination'}">
             <i class="${savedMap[d.id] ? 'fas' : 'far'} fa-heart"></i>
           </button>
         </div>
         <div class="dc-body">
-          <h3>${d.name}</h3>
-          <div class="dc-meta"><i class="fas fa-map-marker-alt"></i>${[d.country, d.continent].filter(Boolean).join(', ')}</div>
-          <div class="dc-tags">${(d.tags || []).slice(0, 3).map(t => `<span class="dc-tag">${t}</span>`).join('')}</div>
-          <p>${(d.description || '').substring(0, 95)}…</p>
+          <h3>${esc(d.name)}</h3>
+          <div class="dc-meta"><i class="fas fa-map-marker-alt"></i>${esc([d.country, d.continent].filter(Boolean).join(', '))}</div>
+          <div class="dc-tags">${(d.tags || []).slice(0, 3).map(t => `<span class="dc-tag">${esc(t)}</span>`).join('')}</div>
+          <p>${esc((d.description || '').substring(0, 95))}…</p>
           <div class="dc-footer">
-            <div class="dc-price">From <strong>$${d.costs.daily}/day</strong></div>
+            <div class="dc-price">From <strong>$${esc(d.costs.daily)}/day</strong></div>
             <button class="btn-view">View →</button>
           </div>
         </div>
       </div>`).join('');
+
+    grid.querySelectorAll('.dest-preview-card').forEach(card => {
+      const id = card.dataset.id;
+      card.addEventListener('click', () => openModal(DESTINATIONS.find(x => x.id === id)));
+      card.querySelector('.fav-btn')?.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFav(id);
+      });
+    });
 
     const pi = document.getElementById('pageIndicator');
     if (pi) pi.textContent = `Page ${currentPage} of ${totalPages()}`;
@@ -380,10 +390,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!d) return;
     if (savedMap[id]) {
       const r = await TT.removeDest(savedMap[id]);
-      if (r.ok) showToast(`${d.name} removed.`, 'info');
+      if (r.ok) showToast(`${ttEsc(d.name)} removed.`, 'info');
     } else {
       const r = await TT.saveDest({ id: d.id, name: d.name, country: d.country, continent: d.continent || d.region || '', image: d.image, rating: d.rating, budget: d.budget, description: d.description || '', tags: d.tags || [], highlights: d.highlights || [], tips: d.tips || [], costs: d.costs || {} });
-      if (r.ok) showToast(`${d.name} saved! <i class="fas fa-heart"></i>`, 'success');
+      if (r.ok) showToast(`${ttEsc(d.name)} saved! <i class="fas fa-heart"></i>`, 'success');
       else showToast(r.err || 'Could not save.', 'error');
     }
   };
@@ -399,7 +409,7 @@ window.openModal = function(d) {
 
   // Hero image
   const hero = modal.querySelector('.modal-hero');
-  if (hero) hero.style.backgroundImage = `url(${d.image})`;
+  if (hero) hero.style.backgroundImage = `url("${ttSafeUrl(d.image, FALLBACK_IMG)}")`;
 
   const s = id => document.getElementById(id);
 
@@ -413,7 +423,7 @@ window.openModal = function(d) {
 
   // Tags row
   if (s('modalTagsRow')) {
-    s('modalTagsRow').innerHTML = (d.tags || []).map(t => `<span class="modal-tag">${t}</span>`).join('');
+    s('modalTagsRow').innerHTML = (d.tags || []).map(t => `<span class="modal-tag">${ttEsc(t)}</span>`).join('');
   }
 
   // Name & location
@@ -428,8 +438,8 @@ window.openModal = function(d) {
     <div class="cost-item"><div class="cost-label">Avg. Flight</div><div class="cost-value">$${d.costs.flight}</div></div>`;
 
   // Highlights & tips
-  if (s('highlightsList')) s('highlightsList').innerHTML = (d.highlights || []).map(h => `<li>${h}</li>`).join('');
-  if (s('tipsList'))       s('tipsList').innerHTML       = (d.tips || []).map(t => `<li>${t}</li>`).join('');
+  if (s('highlightsList')) s('highlightsList').innerHTML = (d.highlights || []).map(h => `<li>${ttEsc(h)}</li>`).join('');
+  if (s('tipsList'))       s('tipsList').innerHTML       = (d.tips || []).map(t => `<li>${ttEsc(t)}</li>`).join('');
 
   // Initialize reviews
   initializeReviewsUI(d.id);
@@ -656,7 +666,7 @@ async function toggleModalFav(d) {
   const r = await TT.saveDest({ id: d.id, name: d.name, country: d.country, image: d.image, rating: d.rating, budget: d.budget });
   const btn = document.getElementById('modalFavBtn');
   if (r.ok) {
-    showToast(`${d.name} saved! <i class="fas fa-heart"></i>`, 'success');
+    showToast(`${ttEsc(d.name)} saved! <i class="fas fa-heart"></i>`, 'success');
     if (btn) { btn.innerHTML = '<i class="fas fa-heart"></i> Saved'; btn.classList.add('saved'); }
   } else { showToast(r.err || 'Could not save.', 'error'); }
 }
@@ -679,29 +689,41 @@ function renderSavedPanel(saved) {
     return;
   }
   
-  body.innerHTML = saved.map(s => `
-    <div class="sp-card" data-id="${s.id}">
-      <div class="sp-img"><img src="${s.image}" alt="${s.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85'"></div>
+  const esc = window.ttEsc;
+  body.innerHTML = saved.map((s, i) => `
+    <div class="sp-card" data-id="${esc(s.id)}" data-idx="${i}">
+      <div class="sp-img"><img src="${esc(ttSafeUrl(s.image, FALLBACK_IMG))}" alt="${esc(s.name)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85'"></div>
       <div class="sp-info">
-        <div class="sp-name">${s.name}</div>
-        <div class="sp-country"><i class="fas fa-map-marker-alt"></i> ${s.country}</div>
+        <div class="sp-name">${esc(s.name)}</div>
+        <div class="sp-country"><i class="fas fa-map-marker-alt"></i> ${esc(s.country)}</div>
       </div>
       <div class="sp-actions">
-        <button class="sp-explore" onclick="openModal(DESTINATIONS.find(x=>x.id==='${s.id}'))" title="View details" aria-label="View ${s.name} details">
+        <button class="sp-explore" title="View details" aria-label="View ${esc(s.name)} details">
           <i class="fas fa-map" aria-hidden="true"></i>
         </button>
-        <button class="sp-remove" onclick="removeSavedItem('${s.docId}', '${s.name}')" title="Remove" aria-label="Remove ${s.name}">
+        <button class="sp-remove" title="Remove" aria-label="Remove ${esc(s.name)}">
           <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
     </div>
   `).join('');
+
+  body.querySelectorAll('.sp-card').forEach(card => {
+    const item = saved[Number(card.dataset.idx)];
+    if (!item) return;
+    card.querySelector('.sp-explore')?.addEventListener('click', () => {
+      openModal(DESTINATIONS.find(x => x.id === item.id));
+    });
+    card.querySelector('.sp-remove')?.addEventListener('click', () => {
+      removeSavedItem(item.docId, item.name);
+    });
+  });
 }
 
 window.removeSavedItem = async function(docId, name) {
   if (confirm(`Remove ${name} from saved places?`)) {
     const r = await TT.removeDest(docId);
-    if (r.ok) showToast(`${name} removed.`, 'info');
+    if (r.ok) showToast(`${ttEsc(name)} removed.`, 'info');
     else showToast(r.err || 'Could not remove.', 'error');
   }
 };
