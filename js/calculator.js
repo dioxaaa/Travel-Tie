@@ -26,7 +26,8 @@ const CURRENCIES = [
   {code:'FJD',name:'Fijian Dollar',sym:'FJ$'},
 ];
 
-const EXCHANGE_KEY = '542b7a2b988398942e7b81f5';
+// Optional ExchangeRate-API key from js/config.js (git-ignored); see js/config.example.js.
+const EXCHANGE_KEY = window.TT_CONFIG?.exchangeRateApiKey || '';
 
 // ── Validation helpers ─────────────────────────────────────
 
@@ -768,13 +769,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const res  = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_KEY}/pair/${from}/${to}/${amount}`);
-      const data = await res.json();
-      loading?.classList.remove('visible');
-      if (data.result === 'success') {
-        showResult(data.conversion_result, from, to, data.conversion_rate, amount);
+      if (EXCHANGE_KEY) {
+        const res  = await fetch(`https://v6.exchangerate-api.com/v6/${encodeURIComponent(EXCHANGE_KEY)}/pair/${from}/${to}/${amount}`);
+        const data = await res.json();
+        loading?.classList.remove('visible');
+        if (data.result === 'success') {
+          showResult(data.conversion_result, from, to, data.conversion_rate, amount);
+        } else {
+          throw new Error(data['error-type'] || 'API error');
+        }
       } else {
-        throw new Error(data['error-type'] || 'API error');
+        const res  = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+        const data = await res.json();
+        loading?.classList.remove('visible');
+        const rate = data.rates?.[to];
+        if (data.result === 'success' && typeof rate === 'number') {
+          showResult(amount * rate, from, to, rate, amount);
+        } else {
+          throw new Error(data['error-type'] || 'API error');
+        }
       }
     } catch (e) {
       loading?.classList.remove('visible');

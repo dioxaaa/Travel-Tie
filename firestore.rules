@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Default: deny everything not matched below.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // users/{uid} profile doc plus its subcollections
+    // (savedDestinations, calculations). Only the owner can touch them.
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /savedDestinations/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /calculations/{docId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Destination catalogue: public read, managed from the Firebase console only.
+    match /destinations/{destId} {
+      allow read: if true;
+      allow write: if false;
+
+      // Reviews: public read; signed-in users may create a review as
+      // themselves. No edits or deletes from the client.
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['userId', 'userName', 'rating', 'comment', 'timestamp'])
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.userName is string
+          && request.resource.data.userName.size() <= 100
+          && request.resource.data.rating is int
+          && request.resource.data.rating >= 1
+          && request.resource.data.rating <= 5
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 2000
+          && request.resource.data.timestamp == request.time;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

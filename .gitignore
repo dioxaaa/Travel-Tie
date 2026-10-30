@@ -1,1 +1,21 @@
+# Secrets / local config
 .env
+.env.*
+!.env.example
+serviceAccountKey*.json
+js/config.js
+
+# Dependencies
+node_modules/
+
+# Firebase CLI
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
