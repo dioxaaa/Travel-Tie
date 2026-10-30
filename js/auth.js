@@ -5,6 +5,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const destUrl = pagesPrefix + (inPages ? 'pages/destinations.html' : 'destinations.html');
   const calcUrl = pagesPrefix + (inPages ? 'pages/calculator.html' : 'pages/calculator.html');
 
+  function safeNextUrl() {
+    const next = new URLSearchParams(window.location.search).get('next');
+    if (!next) return null;
+    try {
+      const url = new URL(next, window.location.href);
+      if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin === window.location.origin) {
+        return url.href;
+      }
+    } catch (e) {}
+    return null;
+  }
+
   TT.onAuthChanged(async user => {
     if (user) {
       const pendingStr = localStorage.getItem('tt_pending_action');
@@ -13,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const pending = JSON.parse(pendingStr);
           localStorage.removeItem('tt_pending_action');
           
-          const next = new URLSearchParams(window.location.search).get('next');
+          const next = safeNextUrl();
           const redirectUrl = next || destUrl;
           
           if (pending.type === 'saveCalc') {
@@ -39,13 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         } catch (e) {
           console.error('Error processing pending action:', e);
-          const next = new URLSearchParams(window.location.search).get('next');
+          const next = safeNextUrl();
           window.location.href = next || destUrl;
         }
         return;
       }
       
-      const next = new URLSearchParams(window.location.search).get('next');
+      const next = safeNextUrl();
       window.location.href = next || destUrl;
     }
   });
@@ -115,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
           } else if (pending.type === 'saveDest') {
             const saveRes = await TT.processPendingAction();
-            const next = new URLSearchParams(window.location.search).get('next');
+            const next = safeNextUrl();
             if (saveRes?.err?.includes('already saved')) {
               window.location.href = (next || destUrl) + (next?.includes('?') ? '&' : '?') + 'info=1';
             } else {
@@ -124,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
           }
         }
-        const next = new URLSearchParams(window.location.search).get('next');
+        const next = safeNextUrl();
         window.location.href = next || destUrl;
       }, 900);
     } else {
@@ -171,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
           } else if (pending.type === 'saveDest') {
             const saveRes = await TT.processPendingAction();
-            const next = new URLSearchParams(window.location.search).get('next');
+            const next = safeNextUrl();
             if (saveRes?.err?.includes('already saved')) {
               window.location.href = (next || destUrl) + (next?.includes('?') ? '&' : '?') + 'info=1';
             } else {
@@ -215,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         } else if (pending.type === 'saveDest') {
           const saveRes = await TT.processPendingAction();
-          const next = new URLSearchParams(window.location.search).get('next');
+          const next = safeNextUrl();
           if (saveRes?.err?.includes('already saved')) {
             window.location.href = (next || destUrl) + (next?.includes('?') ? '&' : '?') + 'info=1';
           } else {
@@ -225,7 +237,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
       
-      const next = new URLSearchParams(window.location.search).get('next');
+      const next = safeNextUrl();
       window.location.href = next || destUrl;
     } else {
       handleGoogleError(res.err, alertId);
