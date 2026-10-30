@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": ["firebase.json", ".firebaserc", "functions/**", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/api/convert", "function": { "functionId": "convert", "region": "us-central1" } }
+    ]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  }
+}

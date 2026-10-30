@@ -26,7 +26,7 @@ const CURRENCIES = [
   {code:'FJD',name:'Fijian Dollar',sym:'FJ$'},
 ];
 
-const EXCHANGE_KEY = '542b7a2b988398942e7b81f5';
+const CONVERT_ENDPOINT = window.TT_CONFIG?.convertEndpoint || '/api/convert';
 
 // ── Validation helpers ─────────────────────────────────────
 
@@ -768,7 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const res  = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_KEY}/pair/${from}/${to}/${amount}`);
+      const params = new URLSearchParams({ from, to, amount: String(amount) });
+      const res  = await fetch(`${CONVERT_ENDPOINT}?${params}`);
       const data = await res.json();
       loading?.classList.remove('visible');
       if (data.result === 'success') {
