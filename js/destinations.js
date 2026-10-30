@@ -526,7 +526,7 @@ async function loadAndDisplayReviews(destId) {
 
     // Calculate average rating
     if (reviews.length > 0) {
-      const avgRating = (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1);
+      const avgRating = (reviews.reduce((sum, r) => sum + reviewRating(r.rating), 0) / reviews.length).toFixed(1);
       if (s('avgRatingScore')) s('avgRatingScore').textContent = avgRating;
       if (s('reviewCount')) s('reviewCount').textContent = reviews.length;
     } else {
@@ -541,9 +541,9 @@ async function loadAndDisplayReviews(destId) {
         return `
           <div class="review-item">
             <div class="review-header">
-              <div class="review-user-name">${r.userName || 'Traveler'}</div>
+              <div class="review-user-name">${escapeHtml(String(r.userName || 'Traveler'))}</div>
               <div class="review-rating-display">
-                ${Array(r.rating || 0).fill(0).map(() => '<span class="review-star-display">★</span>').join('')}
+                ${Array(reviewRating(r.rating)).fill(0).map(() => '<span class="review-star-display">★</span>').join('')}
               </div>
             </div>
             ${r.comment ? `<div class="review-text">${escapeHtml(r.comment)}</div>` : ''}
@@ -610,6 +610,11 @@ async function submitReview(destId) {
   } finally {
     if (submitBtn) submitBtn.disabled = false;
   }
+}
+
+function reviewRating(value) {
+  const n = Math.round(Number(value));
+  return Number.isFinite(n) ? Math.max(1, Math.min(5, n)) : 1;
 }
 
 function escapeHtml(text) {
