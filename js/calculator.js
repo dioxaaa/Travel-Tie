@@ -26,7 +26,7 @@ const CURRENCIES = [
   {code:'FJD',name:'Fijian Dollar',sym:'FJ$'},
 ];
 
-const CONVERT_ENDPOINT = window.TT_CONFIG?.convertEndpoint || '/api/convert';
+const exchangeKey = () => (window.TT_CONFIG && window.TT_CONFIG.exchangeRateApiKey) || '';
 
 // ── Validation helpers ─────────────────────────────────────
 
@@ -768,12 +768,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const params = new URLSearchParams({ from, to, amount: String(amount) });
-      const res  = await fetch(`${CONVERT_ENDPOINT}?${params}`);
+      const key  = exchangeKey();
+      const res  = await fetch(key
+        ? `https://v6.exchangerate-api.com/v6/${encodeURIComponent(key)}/pair/${from}/${to}/${amount}`
+        : `https://open.er-api.com/v6/latest/${from}`);
       const data = await res.json();
       loading?.classList.remove('visible');
-      if (data.result === 'success') {
+      if (data.result === 'success' && key) {
         showResult(data.conversion_result, from, to, data.conversion_rate, amount);
+      } else if (data.result === 'success' && data.rates?.[to]) {
+        showResult(amount * data.rates[to], from, to, data.rates[to], amount);
       } else {
         throw new Error(data['error-type'] || 'API error');
       }

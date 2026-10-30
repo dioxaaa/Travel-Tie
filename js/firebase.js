@@ -15,7 +15,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey:            import.meta.env?.FIREBASE_API_KEY || "",
+  apiKey:            "YOUR_FIREBASE_WEB_API_KEY",
   authDomain:        "travel-tie.firebaseapp.com",
   projectId:         "travel-tie",
   storageBucket:     "travel-tie.firebasestorage.app",
@@ -687,6 +687,19 @@ window.TT = {
       initAuth();
     }
   },
+};
+
+const TT_HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+window.ttEsc = function(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => TT_HTML_ESCAPES[c]);
+};
+
+window.ttSafeUrl = function(url, fallback = '') {
+  try {
+    const u = new URL(String(url || '').trim(), window.location.href);
+    if (u.protocol === 'https:' || u.protocol === 'http:') return u.href;
+  } catch (_) {}
+  return fallback;
 };
 
 window.showToast = function(msg, type = 'info') {
