@@ -779,7 +779,15 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (data.result === 'success' && data.rates?.[to]) {
         showResult(amount * data.rates[to], from, to, data.rates[to], amount);
       } else {
-        throw new Error(data['error-type'] || 'API error');
+        const res  = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+        const data = await res.json();
+        loading?.classList.remove('visible');
+        const rate = data.rates?.[to];
+        if (data.result === 'success' && typeof rate === 'number') {
+          showResult(amount * rate, from, to, rate, amount);
+        } else {
+          throw new Error(data['error-type'] || 'API error');
+        }
       }
     } catch (e) {
       loading?.classList.remove('visible');
