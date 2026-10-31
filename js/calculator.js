@@ -26,8 +26,7 @@ const CURRENCIES = [
   {code:'FJD',name:'Fijian Dollar',sym:'FJ$'},
 ];
 
-// Optional ExchangeRate-API key from js/config.js (git-ignored); see js/config.example.js.
-const EXCHANGE_KEY = window.TT_CONFIG?.exchangeRateApiKey || '';
+const exchangeKey = () => (window.TT_CONFIG && window.TT_CONFIG.exchangeRateApiKey) || '';
 
 // ── Validation helpers ─────────────────────────────────────
 
@@ -769,15 +768,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      if (EXCHANGE_KEY) {
-        const res  = await fetch(`https://v6.exchangerate-api.com/v6/${encodeURIComponent(EXCHANGE_KEY)}/pair/${from}/${to}/${amount}`);
-        const data = await res.json();
-        loading?.classList.remove('visible');
-        if (data.result === 'success') {
-          showResult(data.conversion_result, from, to, data.conversion_rate, amount);
-        } else {
-          throw new Error(data['error-type'] || 'API error');
-        }
+      const key  = exchangeKey();
+      const res  = await fetch(key
+        ? `https://v6.exchangerate-api.com/v6/${encodeURIComponent(key)}/pair/${from}/${to}/${amount}`
+        : `https://open.er-api.com/v6/latest/${from}`);
+      const data = await res.json();
+      loading?.classList.remove('visible');
+      if (data.result === 'success' && key) {
+        showResult(data.conversion_result, from, to, data.conversion_rate, amount);
+      } else if (data.result === 'success' && data.rates?.[to]) {
+        showResult(amount * data.rates[to], from, to, data.rates[to], amount);
       } else {
         const res  = await fetch(`https://open.er-api.com/v6/latest/${from}`);
         const data = await res.json();

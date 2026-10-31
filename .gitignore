@@ -1,9 +1,10 @@
-# Secrets / local config
+# Local config / secrets
 .env
 .env.*
 !.env.example
-serviceAccountKey*.json
 js/config.js
+serviceAccountKey*.json
+*-firebase-adminsdk-*.json
 
 # Dependencies
 node_modules/
@@ -14,8 +15,10 @@ firebase-debug.log
 firebase-debug.*.log
 firestore-debug.log
 ui-debug.log
+.firebaserc.local
 
 # Editors / OS
 .idea/
 .vscode/
 .DS_Store
+Thumbs.db

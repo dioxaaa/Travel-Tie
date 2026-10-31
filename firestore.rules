@@ -8,50 +8,50 @@ service cloud.firestore {
     }
 
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return signedIn() && request.auth.uid == userId;
     }
 
-    // Default: deny everything not matched below.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // users/{uid} profile doc plus its subcollections
-    // (savedDestinations, calculations). Only the owner can touch them.
+    // Profile: displayName, email, photoURL, coverURL, timestamps (js/firebase.js, js/profile.js)
     match /users/{userId} {
       allow read, write: if isOwner(userId);
 
+      // Bookmarked destinations (TT.saveDestination / getSavedDestinations)
       match /savedDestinations/{docId} {
         allow read, write: if isOwner(userId);
       }
 
-      match /calculations/{docId} {
+      // Saved trip budgets (TT.saveCalculation / getCalculations)
+      match /calculations/{calcId} {
         allow read, write: if isOwner(userId);
       }
     }
 
-    // Destination catalogue: public read, managed from the Firebase console only.
+    // Destination catalogue is public, read-only; manage it from the Firebase console / Admin SDK.
     match /destinations/{destId} {
       allow read: if true;
       allow write: if false;
 
-      // Reviews: public read; signed-in users may create a review as
-      // themselves. No edits or deletes from the client.
+      // Reviews (js/destinations.js submitReview): anyone can read, signed-in users can
+      // add a review as themselves; no edits or deletes from the client.
       match /reviews/{reviewId} {
         allow read: if true;
         allow create: if signedIn()
           && request.resource.data.keys().hasOnly(['userId', 'userName', 'rating', 'comment', 'timestamp'])
           && request.resource.data.userId == request.auth.uid
-          && request.resource.data.userName is string
-          && request.resource.data.userName.size() <= 100
           && request.resource.data.rating is int
-          && request.resource.data.rating >= 1
-          && request.resource.data.rating <= 5
+          && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
           && request.resource.data.comment is string
           && request.resource.data.comment.size() <= 2000
+          && request.resource.data.userName is string
+          && request.resource.data.userName.size() <= 100
           && request.resource.data.timestamp == request.time;
         allow update, delete: if false;
       }
+    }
+
+    // Everything else is denied.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

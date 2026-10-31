@@ -65,26 +65,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--gray-400)"><i class="fas fa-globe" style="font-size:2rem;display:block;margin-bottom:12px"></i><p>Loading destinations…</p></div>`;
       return;
     }
-grid.innerHTML = featured.map(d => `
-      <div class="dest-preview-card"
-           onclick="window.location.href='${destBase}?open=${encodeURIComponent(d.id)}'">
+    const esc = window.ttEsc;
+    const fallbackImg = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85';
+    grid.innerHTML = featured.map(d => `
+      <div class="dest-preview-card" data-href="${esc(`${destBase}?open=${encodeURIComponent(d.id)}`)}">
         <div class="dc-img">
-          <img src="${d.image}" alt="${d.name}" loading="lazy"
-               onerror="this.src='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=700&q=85'">
-          <span class="dc-badge ${d.budget}">${d.budget==='budget'?'Budget-Friendly':d.budget==='luxury'?'Luxury':'Moderate'}</span>
-          <span class="dc-rating"><i class="fas fa-star"></i>${d.rating}</span>
+          <img src="${esc(ttSafeUrl(d.image, fallbackImg))}" alt="${esc(d.name)}" loading="lazy"
+               onerror="this.src='${fallbackImg}'">
+          <span class="dc-badge ${esc(d.budget)}">${d.budget==='budget'?'Budget-Friendly':d.budget==='luxury'?'Luxury':'Moderate'}</span>
+          <span class="dc-rating"><i class="fas fa-star"></i>${esc(d.rating)}</span>
         </div>
         <div class="dc-body">
-          <h3>${d.name}</h3>
-          <div class="dc-meta"><i class="fas fa-map-marker-alt"></i>${[d.country, d.continent].filter(Boolean).join(', ')}</div>
-          <div class="dc-tags">${(d.tags || []).slice(0, 3).map(t => `<span class="dc-tag">${t}</span>`).join('')}</div>
-          <p>${(d.description||'').substring(0,95)}…</p>
+          <h3>${esc(d.name)}</h3>
+          <div class="dc-meta"><i class="fas fa-map-marker-alt"></i>${esc([d.country, d.continent].filter(Boolean).join(', '))}</div>
+          <div class="dc-tags">${(d.tags || []).slice(0, 3).map(t => `<span class="dc-tag">${esc(t)}</span>`).join('')}</div>
+          <p>${esc((d.description||'').substring(0,95))}…</p>
           <div class="dc-footer">
-            <div class="dc-price">From <strong>$${d.costs?.daily || d.basePrice || 50}/day</strong></div>
+            <div class="dc-price">From <strong>$${esc(d.costs?.daily || d.basePrice || 50)}/day</strong></div>
             <button class="btn-view">View →</button>
           </div>
         </div>
       </div>`).join('');
+    grid.querySelectorAll('.dest-preview-card').forEach(card => {
+      card.addEventListener('click', () => { window.location.href = card.dataset.href; });
+    });
   }
 
   // Map
@@ -118,7 +122,7 @@ function initMap() {
     DESTINATIONS.forEach(d => {
       if (d.lat==null||d.lng==null) return;
       L.marker([d.lat,d.lng],{icon}).addTo(map)
-        .bindPopup(`<strong style="font-family:serif;font-size:.9rem">${d.name}</strong><br><span style="font-size:.75rem;color:#64748b">${d.country}</span><br><a href="${base}?open=${encodeURIComponent(d.id)}" style="color:#2563eb;font-size:.78rem;font-weight:600">Explore →</a>`,{maxWidth:170});
+        .bindPopup(`<strong style="font-family:serif;font-size:.9rem">${ttEsc(d.name)}</strong><br><span style="font-size:.75rem;color:#64748b">${ttEsc(d.country)}</span><br><a href="${ttEsc(`${base}?open=${encodeURIComponent(d.id)}`)}" style="color:#2563eb;font-size:.78rem;font-weight:600">Explore →</a>`,{maxWidth:170});
     });
   };
   addMarkers();
